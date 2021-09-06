@@ -1,79 +1,59 @@
-// let url = "https://espncricinfo.com/series/ipl-2020-21-1210595/mumbai-indians-vs-chennai-super-kings-1st-match-1216492/full-scorecard";
-let request = require("request");
-let cheerio = require("cheerio");
-let fs = require("fs");
-let path = require("path");
-// get single match url
-function processSingleMatch(url){
+let request = require('request');
+let cheerio = require('cheerio');
+let fs = require('fs');
+let path = require('path');
+
+function processSingleMatch(url) {
     request(url, cb);
 }
 function cb(error, response, html) {
-    if(error) {
+    if (error) {
         console.log(error);
-    } else if (response.statusCode == 404) {
+    } else if (response && response.scorecard == 404) {
         console.log("Page Not Found");
     } else {
-        extractMatchDetail(html);
+        dataExtracter(html);
     }
 }
-
-function extractMatchDetail(html) {
-    // ipl  ka folder banega
-     // team
-            // player 
-                    // runs balls fours sixes sr opponent venue date 
-    // common attributes = venue date result (same hi rrahega dono teams ke lie)
-    // venue and date -> .event .description
-    // result -> .event .status-text            
-    let searchTool = cheerio.load(html);
-    let descElem = searchTool(".event .description");
-    let result = searchTool(".event .status-text");
-    let stringArr = descElem.text().split(",");
-    let venue = stringArr[1].trim();
-    let date = stringArr[2].trim();
-    result = result.text();
-
-    let InningsArr = searchTool(".Collapsible");
-    for(let i=0; i < InningsArr.length; i++) {
-      // scorecard = searchTool(InningArr[i]).html();
-        let teamNameEle = searchTool(InningsArr[i]).find("h5");
-        let teamName = teamNameEle.text();
+function dataExtracter(html) {
+    let $ = cheerio.load(html);
+    // let descElems = $(".event .description");
+    let descElems = $(".header-info .description");
+    let result = $(".event .status-text");
+    let strArr = descElems.text().split(",");
+    let venue = strArr[1].trim();
+    let date = strArr[2].trim();
+        result = result.text();
+    let bothInningsArr = $(".Collapsible");
+    for(let i = 0; i < bothInningsArr.length; i++) {
+        let teamNameElem = $(bothInningsArr[i]).find("h5");
+        let teamName = teamNameElem.text();
         teamName = teamName.split("INNINGS")[0];
         teamName = teamName.trim();
-        // opponent
-        let oppidx = i==0?1:0;
-        let oppTeamName = searchTool(InningsArr[oppidx]).find("h5").text();
-        oppTeamName = oppTeamName.split("INNINGS")[0].trim();
-        //console.log(venue+ " "+ date+ " "+ teamName+ " "+oppTeamName + " "+ result);
-
+        // console.log("````````````````````````````````````");
+        // console.log(`${venue} |${date} |${teamName}`);
         
-       // task is to get the batsman's
-        let batsManTableBodyAllRows = searchTool(".table.batsman tbody tr");
-        // console.log(batsManTableBodyAllRows.length); -> length = No. of rows(BatsMan)
-        // type cohersion loops 
-        for(let j = 0; j < batsManTableBodyAllRows.length; j++) {
-            //number of columns in respective rows
-            let numberOfTds = searchTool(batsManTableBodyAllRows[j]).find("td");
-            // console.log(numberOfTds.length);
-            if(numberOfTds.length == 8) {
-                 let playerName = searchTool(numberOfTds[0]).text();
-                 let runs = searchTool(numberOfTds[2]).text().trim();
-                 let balls = searchTool(numberOfTds[3]).text().trim();
-                 let fours = searchTool(numberOfTds[5]).text().trim();
-                 let sixes = searchTool(numberOfTds[6]).text().trim();
-                 let sr = searchTool(numberOfTds[7]).text().trim();
-
-                 console.log(playerName+ " "+ runs+ " "+ balls+ " "+ fours+ " "+ sixes+ " "+ sr);
-                finalProcessing(teamName, playerName, runs, balls, fours, sixes, sr, oppTeamName, venue, date, result);
+        let allRows = $(bothInningsArr[i]).find(".table.batsman tbody tr");
+        for(let j = 0; j<allRows.length; j++){
+            let numberOfTds = $(allRows[j]).find("td");
+            if(numberOfTds.length==8){
+                let playerName = $(numberOfTds[0]).text().trim();
+                let runs = $(numberOfTds[2]).text().trim();
+                let balls = $(numberOfTds[3]).text().trim();
+                let fours = $(numberOfTds[5]).text().trim();
+                let sixes = $(numberOfTds[6]).text().trim();
+                let sr = $(numberOfTds[7]).text().trim();
+                // console.log(`${playerName}|${runs}|${balls}|${fours}|${sixes}|${sr}`);
+                console.log(`${teamName}|${playerName}|${runs}|${balls}|${fours}|${sixes}|${sr}|${venue}|${date}|${result}`);
+                processPlayer(teamName,playerName,runs,balls,fours,sixes,sr,venue,date,result);
             }
-        } 
-      
+        }
+
     }
 }
-// Final Processing
-function finalProcessing(teamName, playerName, runs, balls, fours, sixes, sr, oppTeamName, venue, date, result) {
-    let teamPath = path.join(__dirname, "IPL", teamName);
-    let inputData = {
+function processPlayer(teamName,playerName,runs,balls,fours,sixes,sr,venue,date,result){
+    let teamPath = path.join(__dirname,"IPL",teamName);
+    let playerObj = {
         teamName,
         playerName,
         runs,
@@ -81,21 +61,31 @@ function finalProcessing(teamName, playerName, runs, balls, fours, sixes, sr, op
         fours,
         sixes,
         sr,
-        oppTeamName,
         venue,
         date,
         result
     }
-    createDirectory(teamPath);
-    let playerPath = path.join(teamPath, playerName + ".json");
-    let jsonWriteable = JSON.stringify(inputData);
-    fs.writeFileSync(playerPath, jsonWriteable);
+    let arrResult = [];
+    dirCreater(teamPath);
+    let playerPath = path.join(teamPath,playerName+".json");
+    if(fs.existsSync(playerPath)==false){
+        arrResult[0] = playerObj;
+        let jsonWritable = JSON.stringify(arrResult);
+        fs.writeFileSync(playerPath,jsonWritable);
+    }
+    else{
+        let data = fs.readFileSync(playerPath);
+        let jsonData = JSON.parse(data);
+        jsonData.push(playerObj);
+        let jsonWritable = JSON.stringify(jsonData);
+        fs.writeFileSync(playerPath,jsonWritable);
+    }
 }
-function createDirectory(filepath) {
-    if(fs.existsSync(filepath) == false) {
-        fs.mkdirSync(filepath);
+function dirCreater(filePath) {
+    if(fs.existsSync(filePath)==false){
+        fs.mkdirSync(filePath);
     }
 }
 module.exports = {
-    psm : processSingleMatch
+    psm: processSingleMatch
 }

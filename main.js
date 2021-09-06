@@ -1,61 +1,54 @@
-let url = "https://www.espncricinfo.com/series/ipl-2020-21-1210595";
-//venue date opponent result runs balls fours sixes sr 
-let request = require("request");
-let cheerio = require("cheerio");
-let scorecardObj = require("./scorecard");
-let path = require("path");
-let fs = require("fs");
-let iplPath = path.join(__dirname, "IPL");
-createDirectory(iplPath);
-request(url, cb);
+let request = require('request');
+let cheerio = require('cheerio');
+let fs = require('fs');
+let path = require('path');
+let scoreCardObj = require("./scorecard");
 
-function cb(error, response, html) {
+
+let iplPath = path.join(__dirname,"IPL");
+dirCreater(iplPath);
+let url = "https://www.espncricinfo.com/series/ipl-2020-21-1210595";
+
+request(url, cb);
+function cb(error, response,html) {
     if(error) {
         console.log(error);
-    } else if(response.statusCode == 404) {
+    }else if(response && response.statusCode==404) {
         console.log("Page Not Found");
-    } else {
-        dataExtracter(html);
+    }else{
+        dataExtractor(html);
     }
 }
-function dataExtracter(html) {
-    // search tool
-    let searchTool = cheerio.load(html);
-    // css selector -> elem
-    let anchorElem = searchTool("a[data-hover='View All Results']");
-    let link = anchorElem.attr("href");
-    //let fullAllMatchPageLink = "www.espncricinfo.com" + link;
-    let fullAllMatchPageLink = `https://espncricinfo.com${link}`;
-    // go to all Match Page
-    request(fullAllMatchPageLink, allMatchPageCb);
-
+function dataExtractor(html) {
+    let $ = cheerio.load(html);
+    let linkElem = $("a[data-hover='View All Results']");
+    let link = linkElem.attr("href");
+    let allMatchLink = `https://www.espncricinfo.com${link}`;
+    // console.log(fullLink);
+    request(allMatchLink,allMatchPageCB);
+    
 }
-function allMatchPageCb(error, response, html){
-    if(error) {
+function allMatchPageCB(error,response,html) {
+    if (error) {
         console.log(error);
-    } else if(response.statusCode == 404) {
+    }else if(response && response.statusCode==404) {
         console.log("Page Not Found");
-    }  else {
+    }else{
         getAllScoreCardLink(html);
     }
 }
-function getAllScoreCardLink(html){
-    console.log("````````````````````");
-    let searchTool = cheerio.load(html);
-    let scorecardsArr = searchTool("a[data-hover='Scorecard']");
-    for(let i=0; i < scorecardsArr.length; i++)  {
-        let link = searchTool(scorecardsArr[i]).attr("href");
-        let fullMatchPageLink = `https://espncricinfo.com${link}`;
-        console.log(fullMatchPageLink);
-        scorecardObj.psm(fullMatchPageLink);
-
-    } 
-console.log("`````````````````````````````````````");
-}
-function createDirectory(filepath) {
-    if(fs.existsSync(filepath) == false) {
-        fs.mkdirSync(filepath);
+function getAllScoreCardLink(html) {
+    let $ = cheerio.load(html);
+    let scorecardArr = $("a[data-hover='Scorecard']");
+    for(let i=0; i<scorecardArr.length; i++) {
+        let link = $(scorecardArr[i]).attr("href");
+        let fullAllMatchLink = `https://www.espncricinfo.com${link}`;
+        console.log(fullAllMatchLink);
+        scoreCardObj.psm(fullAllMatchLink);
     }
 }
-
-
+function dirCreater(filePath) {
+    if(fs.existsSync(filePath)==false) {
+        fs.mkdirSync(filePath);
+    }
+}

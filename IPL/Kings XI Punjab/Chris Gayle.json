@@ -1,0 +1,86 @@
+[
+    {
+        "teamName": "Kings XI Punjab",
+        "playerName": "Chris Gayle",
+        "runs": "12",
+        "balls": "19",
+        "fours": "0",
+        "sixes": "0",
+        "sr": "63.15",
+        "venue": "Abu Dhabi",
+        "date": "Nov 1 2020",
+        "result": "Super Kings won by 9 wickets (with 7 balls remaining)"
+    },
+    {
+        "teamName": "Kings XI Punjab",
+        "playerName": "Chris Gayle",
+        "runs": "99",
+        "balls": "63",
+        "fours": "6",
+        "sixes": "8",
+        "sr": "157.14",
+        "venue": "Abu Dhabi",
+        "date": "Oct 30 2020",
+        "result": "Royals won by 7 wickets (with 15 balls remaining)"
+    },
+    {
+        "teamName": "Kings XI Punjab",
+        "playerName": "Chris Gayle",
+        "runs": "51",
+        "balls": "29",
+        "fours": "2",
+        "sixes": "5",
+        "sr": "175.86",
+        "venue": "Sharjah",
+        "date": "Oct 26 2020",
+        "result": "Kings XI won by 8 wickets (with 7 balls remaining)"
+    },
+    {
+        "teamName": "Kings XI Punjab",
+        "playerName": "Chris Gayle",
+        "runs": "20",
+        "balls": "20",
+        "fours": "2",
+        "sixes": "1",
+        "sr": "100.00",
+        "venue": "Dubai (DSC)",
+        "date": "Oct 24 2020",
+        "result": "Kings XI won by 12 runs"
+    },
+    {
+        "teamName": "Kings XI Punjab",
+        "playerName": "Chris Gayle",
+        "runs": "29",
+        "balls": "13",
+        "fours": "3",
+        "sixes": "2",
+        "sr": "223.07",
+        "venue": "Dubai (DSC)",
+        "date": "Oct 20 2020",
+        "result": "Kings XI won by 5 wickets (with 6 balls remaining)"
+    },
+    {
+        "teamName": "Kings XI Punjab",
+        "playerName": "Chris Gayle",
+        "runs": "24",
+        "balls": "21",
+        "fours": "1",
+        "sixes": "2",
+        "sr": "114.28",
+        "venue": "Dubai (DSC)",
+        "date": "Oct 18 2020",
+        "result": "Match tied (Kings XI won the one-over eliminator)"
+    },
+    {
+        "teamName": "Kings XI Punjab",
+        "playerName": "Chris Gayle",
+        "runs": "53",
+        "balls": "45",
+        "fours": "1",
+        "sixes": "5",
+        "sr": "117.77",
+        "venue": "Sharjah",
+        "date": "Oct 15 2020",
+        "result": "Kings XI won by 8 wickets"
+    }
+]
